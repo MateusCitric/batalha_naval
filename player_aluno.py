@@ -1,4 +1,4 @@
-# Nome completo do primeiro membro: [Mateus Pinheiro Carioca]
+# Nome completo do primeiro membro: [Citric MP]
 # RA do primeiro membro: [282046]
 # Nome completo do segundo membro: [Segundo membro da equipe]
 # RA do segundo membro: [Segundo membro da equipe]
