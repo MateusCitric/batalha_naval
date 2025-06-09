@@ -1,7 +1,7 @@
-# Nome completo do primeiro membro: [Citric MP]
+# Nome completo do primeiro membro: [Mateus Pinheiro Carioca]
 # RA do primeiro membro: [282046]
-# Nome completo do segundo membro: [Segundo membro da equipe]
-# RA do segundo membro: [Segundo membro da equipe]
+# Nome completo do segundo membro: [Felipe Pedral Cruz de Oliveira]
+# RA do segundo membro: [220826]
 
 '''
 Implemente aqui a sua estratégia de ataque e a posição dos navios.
@@ -22,8 +22,8 @@ from constants import TABULEIRO_TAMANHO, NAVIOS, StatusTab
 from classes._attack import Ataque
 from classes._ship import Navio
 from classes._pos_matriz import PosMatriz
-
-
+from utils.helpers import get_adjacentes, dentro_limite
+import random
 class AlunoPlayer():
     """Classe que representa o jogador bot do aluno."""
 
@@ -49,8 +49,37 @@ class AlunoPlayer():
 
         Retorna um objeto do tipo Ataque com as coordenadas (x,y) da jogada.
         """
+
+        ataques = []
+        # acertou = False
+        # if not acertou:
         
-        return Ataque(0, 0)
+        
+        for i in range(TABULEIRO_TAMANHO):
+            if i % 2 == 0:
+                for j in range(1, TABULEIRO_TAMANHO, 2):
+                    current = [i,j]
+                    if estado_atual_oponente[i][j].status == StatusTab.DESCONHECIDO.value and (i, j) not in self.movimentos_realizados:
+                        return Ataque(i, j)
+                    if estado_atual_oponente[i][j].status == StatusTab.NAVIO_ENCONTRADO.value and (i, j) not in self.movimentos_realizados:
+                        print(f"acertou {estado_atual_oponente[i][j]}")
+            else:
+                for j in range(0, TABULEIRO_TAMANHO, 2):
+                    if estado_atual_oponente[i][j].status == StatusTab.DESCONHECIDO.value and (i, j) not in self.movimentos_realizados:
+                        return Ataque(i, j)
+                    if estado_atual_oponente[i][j].status == StatusTab.NAVIO_ENCONTRADO.value and (i, j) not in self.movimentos_realizados:
+                        print(f"acertou {estado_atual_oponente[i][j]}")
+        
+
+
+            
+
+    def _area_livre(self, x, y, matriz_auxiliar, desocupado):
+        for xi, yi in get_adjacentes(x, y):
+            if dentro_limite(xi, yi) and matriz_auxiliar[xi][yi] != desocupado:
+                return False
+        return True
+        
 
 
 
@@ -62,5 +91,34 @@ class AlunoPlayer():
         O nome do navio será determinado automaticamente pelo tamanho do navio dentro da classe Navio."""
         
         navios = []
-    
+        
+        # constante e matriz utilizados somente para auxiliar na definição de posições
+        desocupado = 0
+        matriz_auxiliar = [[desocupado for _ in range(TABULEIRO_TAMANHO)] for _ in range(TABULEIRO_TAMANHO)]
+        
+        linhas_disponiveis = []
+        if random.randint(0, 1) == 0:
+            linhas_disponiveis = [i for i in range(0, TABULEIRO_TAMANHO, 2)]
+        else:
+            linhas_disponiveis = [i for i in range(1, TABULEIRO_TAMANHO, 2)]
+        
+        random.shuffle(linhas_disponiveis)
+
+        for tamanho in NAVIOS.values():
+            colocado = False
+            for linha in linhas_disponiveis:
+                colunas_possiveis = list(range(TABULEIRO_TAMANHO - tamanho + 1))
+                random.shuffle(colunas_possiveis)
+                for col in colunas_possiveis:
+                    coords = [(linha, col + i) for i in range(tamanho)]
+                    if all(matriz_auxiliar[x][y] == desocupado for x, y in coords) and all(self._area_livre(x, y, matriz_auxiliar, desocupado) for x, y in coords):
+                        for x, y in coords:
+                            matriz_auxiliar[x][y] = tamanho
+                        navios.append(Navio(tamanho, coords))
+                        colocado = True
+                        break
+                if colocado:
+                    break
+        
         return navios
+        
